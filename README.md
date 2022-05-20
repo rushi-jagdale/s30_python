@@ -1,4 +1,5 @@
 # s30_python
+Required python version is greater than 3.6
 
 start virtual env:-
 
