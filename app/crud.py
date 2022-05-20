@@ -15,47 +15,45 @@ def list_Address(db: Session, skip: int = 0, limit: int = 100):
 def get_Address(db: Session, id: int):
     return db.query(Address).get(id)
 
-def closest(lst, K):      
-    return lst[min(range(len(lst)), key = lambda i: abs(lst[i]-K))]
 
-def get_address_by_distance(actual_distance: float, lat:float, long:float, db: Session):
+def closest(lst, K):
+    return lst[min(range(len(lst)), key=lambda i: abs(lst[i]-K))]
+
+
+def get_address_by_distance(actual_distance: float, lat: float, long: float, db: Session):
     # print(db.query(Address).filter(Address.distance == distance))
-    print(actual_distance) 
-    lat_long_lst=[]
-    distance_lst=[]
+    print(actual_distance)
+    lat_long_lst = []
+    distance_lst = []
     lat1 = lat
     lon1 = long
     # lat2 = 52.406374
     # lon2 = 16.9251681
-    obj = db.query(Address.latitude, Address.longitude)
+    obj = db.query(Address.address, Address.latitude, Address.longitude)
     dis = db.execute(obj).fetchall()
-    print(dis)  
-    for i in range(len(dis)): 
-        latlong =dis[i]
+    print(dis)
+    for i in range(len(dis)):
+        latlong = dis[i]
         for j in range(len(latlong)):
             lat_long_lst.append(latlong[j])
-
-        # print(latlong)      
-    lat2 = lat_long_lst[::2]
-    lon2 = lat_long_lst[1::2] 
+        # print(latlong)
+    lat2 = lat_long_lst[1::3]
+    lon2 = lat_long_lst[2::3]
+    address = lat_long_lst[::3]
     print(lat2)
     print(lon2)
     for i in range(len(lat2)):
-        dlon = lon2[i] - lon1
-        dlat = lat2[i] - lat1
+
+        dlon = float(lon2[i]) - lon1
+        dlat = float(lat2[i]) - lat1
         a = (sin(dlat/2))**2 + cos(lat1) * cos(lat2[i]) * (sin(dlon/2))**2
         c = 2 * atan2(sqrt(a), sqrt(1-a))
         distance = R * c
-        distance_lst.append(distance)
-    closest_distance=closest(distance_lst, actual_distance) 
-    print(f"clsd{closest_distance}")  
-    # data = db.query(Address).all()
-    
-    # obj = db.query(Address.distance, Address.address).where(Address.distance==distance)
-    # dis = db.execute(obj).fetchone()
-  
-    # print(db.query(Address.address).where(Address.distance))           
-    return None
+        print(distance)
+        if distance <= actual_distance:
+            distance_lst.append(address[i])
+
+    return distance_lst
 
 
 def create_Address(db: Session, data: AddressCreate):
